@@ -6,20 +6,21 @@ comments: true
 categories: 
 ---
 ###NLP的主要应用范畴###
-文本朗读（Text to speech）/语音合成（Speech synthesis）
-语音识别（Speech recognition）
-中文自动分词（Chinese word segmentation）
-词性标注（Part-of-speech tagging）
-句法分析（Parsing）
-自然语言生成（Natural language generation）
-文本分类（Text categorization）
-信息检索（Information retrieval）
-信息抽取（Information extraction）
-文字校对（Text-proofing）
-问答系统（Question answering）
-机器翻译（Machine translation）
-自动摘要（Automatic summarization）
-文字蕴涵（Textual entailment）
+文本朗读（Text to speech）/语音合成（Speech synthesis）  
+语音识别（Speech recognition）  
+中文自动分词（Chinese word segmentation）  
+词性标注（Part-of-speech tagging）  
+句法分析（Parsing）  
+自然语言生成（Natural language generation）  
+文本分类（Text categorization）  
+信息检索（Information retrieval）  
+信息抽取（Information extraction）  
+文字校对（Text-proofing）  
+问答系统（Question answering）  
+机器翻译（Machine translation）  
+自动摘要（Automatic summarization）  
+文字蕴涵（Textual entailment）  
+<!-- more -->
 ###NLP的研究难点####
 单词的边界界定
 在口语中，词与词之间通常是连贯的，而界定字词边界通常使用的办法是取用能让给定的上下文最为通顺且在文法上无误的一种最佳组合。在书写上，汉语也没有词与词之间的边界。

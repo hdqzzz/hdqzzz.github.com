@@ -7,7 +7,7 @@ categories: MarchineLearning
 ---
 Locality-sensitive hashing (LSH) is a method of performing probabilistic dimension reduction of high-dimensional data. The basic idea is to hash the input items so that similar items are mapped to the same buckets with high probability (the number of buckets being much smaller than the universe of possible input items). The hashing used in LSH is different from conventional hash functions, such as those used in cryptography, as in the LSH case the goal is to maximize probability of "collision" of similar items rather than avoid collisions. [1] Note how locality-sensitive hashing, in many ways, mirrors data clustering and nearest neighbor search.
 
-#Title1#
+<!-- more -->
 ##Title2##
 ###Title3###
 An LSH family [1] [2] [3] \mathcal F is defined for a metric space \mathcal M =(M, d), a threshold R>0 and an approximation factor c>1. This family \mathcal F is a family of functions h:{\mathcal M}\to S which map elements from the metric space to a bucket s \in S. The LSH family satisfies the following conditions for any two points p, q \in {\mathcal M}, using a function h \in \mathcal F which is chosen uniformly at random:
