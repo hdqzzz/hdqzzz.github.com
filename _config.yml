@@ -2,8 +2,8 @@
 #      Main Configs       #
 # ----------------------- #
 
-url: http://yoursite.com
-title: Joey Zhao's Blog
+url: http://hdqzzz.github.io
+title: NLPNote 
 subtitle: On the way.
 author: Joey Zhao 
 simple_search: https://www.google.com/search
@@ -70,8 +70,8 @@ github_show_profile_link: true
 github_skip_forks: true
 
 # Twitter
-twitter_user:
-twitter_tweet_button: true
+#twitter_user:
+#twitter_tweet_button: true
 
 # Google +1
 google_plus_one: false
