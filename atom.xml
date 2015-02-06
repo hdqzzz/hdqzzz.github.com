@@ -4,7 +4,7 @@
   <title><![CDATA[NLPNote]]></title>
   <link href="http://hdqzzz.github.io/atom.xml" rel="self"/>
   <link href="http://hdqzzz.github.io/"/>
-  <updated>2015-02-06T12:50:39+08:00</updated>
+  <updated>2015-02-06T21:20:49+08:00</updated>
   <id>http://hdqzzz.github.io/</id>
   <author>
     <name><![CDATA[Joey Zhao]]></name>
@@ -14,13 +14,104 @@
 
   
   <entry>
+    <title type="html"><![CDATA[神奇的SimHash]]></title>
+    <link href="http://hdqzzz.github.io/blog/2015/02/06/introduction-to-simhash/"/>
+    <updated>2015-02-06T17:46:11+08:00</updated>
+    <id>http://hdqzzz.github.io/blog/2015/02/06/introduction-to-simhash</id>
+    <content type="html"><![CDATA[<h3>基础概念</h3>
+
+<h4>海明距离 [Hamming distance]</h4>
+
+<p> 两个编码的对应比特位取值不同的比特总数称为这两个码字的海明距离。在一个有效编码集中,任意两个码字的海明距离的最小值称为该编码集的海明距离。举例如下：10101和00110从第一位开始依次有第一位、第四、第五位不同，则海明距离为3。</p>
+
+<h4>Jaccard相似系数 [Jaccard Similarity]</h4>
+
+<p> Jaccard相似指数用来度量两个集合之间的相似性，它被定义为两个集合交集的元素个数除以并集的元素个数。<br/>
+<img src="http://hdqzzz.github.io/images/Jaccard.jpg" title="Jaccard系数公式" alt="alt Jaccard系数公式" /></p>
+
+<h4>Jaccard距离</h4>
+
+<p>1-Jaccard系数，它用来度量两个集合之间的差异性。</p>
+
+<!-- more -->
+
+
+<h3>局部哈希的引入</h3>
+
+<p>在一些应用场景中需要在大规模文本集中找出与某个文档相似的文档，直接做相似度计算（如余弦相似度）将耗费大量时间，可以借鉴Jaccard相似度的思想来快速处理。但Jaccard相似度要求保存每个集合的元素，对于一个文档来说，元素常常意味着不同的词，在大文本集中保存这些元素会耗费大量空间，有没有办法能减少空间还可以达到近似的效果？</p>
+
+<p>举个例子推导下，对元素集 E={a, b, c, d, e}上的集合 S1={a, d}，S2={a, c, d}， 它们的特征矩阵为：</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Tables </th>
+<th style="text-align:center;"> Are </th>
+<th style="text-align:right;"> Cool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">col 3 is      </td>
+<td style="text-align:center;"> right-aligned </td>
+<td style="text-align:right;"> $160099</td>
+</tr>
+<tr>
+<td style="text-align:left;">col 2 is      </td>
+<td style="text-align:center;"> centered      </td>
+<td style="text-align:right;">   $12</td>
+</tr>
+<tr>
+<td style="text-align:left;">zebra stripes </td>
+<td style="text-align:center;"> are neat      </td>
+<td style="text-align:right;">    $1</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Jaccard_Sim(S1, S2) = |{a, d}|/|{a, c, d}| = 2/3</p>
+
+<p>代码</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c">#!/usr/bin/env python</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span>
+
+<span class="n">test_ratio</span><span class="o">=</span><span class="mf">0.1</span>
+
+<span class="n">pos</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="s">&#39;corpus/pos&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+<span class="n">neg</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="s">&#39;corpus/neg&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+
+<span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+<span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">neg</span><span class="p">)</span>
+
+<span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">test_ratio</span><span class="p">)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span>
+<span class="n">nf</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="s">&#39;train-data/pos&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">[:</span><span class="n">count</span><span class="p">]:</span>
+    <span class="n">nf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+<span class="n">nf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+<span class="n">nf</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="s">&#39;test-data/pos&#39;</span><span class="p">,</span><span class="s">&#39;w&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">[</span><span class="n">count</span><span class="p">:]:</span>
+    <span class="n">nf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+<span class="n">nf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></code></pre></div>
+
+
+
+]]></content>
+  </entry>
+  
+  <entry>
     <title type="html"><![CDATA[Introduction to Locality Sensitive Hash]]></title>
     <link href="http://hdqzzz.github.io/blog/2015/02/06/introduction-to-locality-sensitive-hash/"/>
     <updated>2015-02-06T11:35:32+08:00</updated>
     <id>http://hdqzzz.github.io/blog/2015/02/06/introduction-to-locality-sensitive-hash</id>
     <content type="html"><![CDATA[<p>Locality-sensitive hashing (LSH) is a method of performing probabilistic dimension reduction of high-dimensional data. The basic idea is to hash the input items so that similar items are mapped to the same buckets with high probability (the number of buckets being much smaller than the universe of possible input items). The hashing used in LSH is different from conventional hash functions, such as those used in cryptography, as in the LSH case the goal is to maximize probability of &ldquo;collision&rdquo; of similar items rather than avoid collisions. [1] Note how locality-sensitive hashing, in many ways, mirrors data clustering and nearest neighbor search.</p>
 
-<h1>Title1</h1>
+<!-- more -->
+
 
 <h2>Title2</h2>
 
@@ -48,22 +139,28 @@
     <link href="http://hdqzzz.github.io/blog/2015/01/06/hello-world/"/>
     <updated>2015-01-06T22:29:40+08:00</updated>
     <id>http://hdqzzz.github.io/blog/2015/01/06/hello-world</id>
-    <content type="html"><![CDATA[<h3>NLP的主要应用范畴</h3>
+    <content type="html"><![CDATA[<p>123456<br/>
+222222</p>
 
-<p>文本朗读（Text to speech）/语音合成（Speech synthesis）
-语音识别（Speech recognition）
-中文自动分词（Chinese word segmentation）
-词性标注（Part-of-speech tagging）
-句法分析（Parsing）
-自然语言生成（Natural language generation）
-文本分类（Text categorization）
-信息检索（Information retrieval）
-信息抽取（Information extraction）
-文字校对（Text-proofing）
-问答系统（Question answering）
-机器翻译（Machine translation）
-自动摘要（Automatic summarization）
+<h3>NLP的主要应用范畴</h3>
+
+<p>文本朗读（Text to speech）/语音合成（Speech synthesis）<br/>
+语音识别（Speech recognition）<br/>
+中文自动分词（Chinese word segmentation）<br/>
+词性标注（Part-of-speech tagging）<br/>
+句法分析（Parsing）<br/>
+自然语言生成（Natural language generation）<br/>
+文本分类（Text categorization）<br/>
+信息检索（Information retrieval）<br/>
+信息抽取（Information extraction）<br/>
+文字校对（Text-proofing）<br/>
+问答系统（Question answering）<br/>
+机器翻译（Machine translation）<br/>
+自动摘要（Automatic summarization）<br/>
 文字蕴涵（Textual entailment）</p>
+
+<!-- more -->
+
 
 <h3>NLP的研究难点</h3>
 

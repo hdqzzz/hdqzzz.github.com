@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Algorithm | NLPNote]]></title>
+  <link href="http://hdqzzz.github.io/blog/categories/algorithm/atom.xml" rel="self"/>
+  <link href="http://hdqzzz.github.io/"/>
+  <updated>2015-02-06T21:20:49+08:00</updated>
+  <id>http://hdqzzz.github.io/</id>
+  <author>
+    <name><![CDATA[Joey Zhao]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[神奇的SimHash]]></title>
+    <link href="http://hdqzzz.github.io/blog/2015/02/06/introduction-to-simhash/"/>
+    <updated>2015-02-06T17:46:11+08:00</updated>
+    <id>http://hdqzzz.github.io/blog/2015/02/06/introduction-to-simhash</id>
+    <content type="html"><![CDATA[<h3>基础概念</h3>
+
+<h4>海明距离 [Hamming distance]</h4>
+
+<p> 两个编码的对应比特位取值不同的比特总数称为这两个码字的海明距离。在一个有效编码集中,任意两个码字的海明距离的最小值称为该编码集的海明距离。举例如下：10101和00110从第一位开始依次有第一位、第四、第五位不同，则海明距离为3。</p>
+
+<h4>Jaccard相似系数 [Jaccard Similarity]</h4>
+
+<p> Jaccard相似指数用来度量两个集合之间的相似性，它被定义为两个集合交集的元素个数除以并集的元素个数。<br/>
+<img src="/images/Jaccard.jpg" title="Jaccard系数公式" alt="alt Jaccard系数公式" /></p>
+
+<h4>Jaccard距离</h4>
+
+<p>1-Jaccard系数，它用来度量两个集合之间的差异性。</p>
+
+<!-- more -->
+
+
+<h3>局部哈希的引入</h3>
+
+<p>在一些应用场景中需要在大规模文本集中找出与某个文档相似的文档，直接做相似度计算（如余弦相似度）将耗费大量时间，可以借鉴Jaccard相似度的思想来快速处理。但Jaccard相似度要求保存每个集合的元素，对于一个文档来说，元素常常意味着不同的词，在大文本集中保存这些元素会耗费大量空间，有没有办法能减少空间还可以达到近似的效果？</p>
+
+<p>举个例子推导下，对元素集 E={a, b, c, d, e}上的集合 S1={a, d}，S2={a, c, d}， 它们的特征矩阵为：</p>
+
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">Tables </th>
+<th style="text-align:center;"> Are </th>
+<th style="text-align:right;"> Cool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">col 3 is      </td>
+<td style="text-align:center;"> right-aligned </td>
+<td style="text-align:right;"> $160099</td>
+</tr>
+<tr>
+<td style="text-align:left;">col 2 is      </td>
+<td style="text-align:center;"> centered      </td>
+<td style="text-align:right;">   $12</td>
+</tr>
+<tr>
+<td style="text-align:left;">zebra stripes </td>
+<td style="text-align:center;"> are neat      </td>
+<td style="text-align:right;">    $1</td>
+</tr>
+</tbody>
+</table>
+
+
+<p>Jaccard_Sim(S1, S2) = |{a, d}|/|{a, c, d}| = 2/3</p>
+
+<p>代码</p>
+
+<p><div class="highlight"><pre><code class="language-python" data-lang="python"><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">h1</span><span class="o">&gt;</span><span class="err">!</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">env</span> <span class="n">python</span><span class="o">&lt;/</span><span class="n">h1</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">random</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">test_ratio</span><span class="o">=</span><span class="mf">0.1</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">pos</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">corpus</span><span class="o">/</span><span class="n">pos</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span>
+<span class="n">neg</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">corpus</span><span class="o">/</span><span class="n">neg</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span><span class="o">.</span><span class="n">readlines</span><span class="p">()</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+<span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">neg</span><span class="p">)</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="mi">1</span><span class="o">-</span><span class="n">test_ratio</span><span class="p">)</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">pos</span><span class="p">))</span>
+<span class="n">nf</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">train</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">pos</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">w</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span>
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">[:</span><span class="n">count</span><span class="p">]:</span>
+    <span class="n">nf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+<span class="n">nf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span><span class="o">&lt;/</span><span class="n">p</span><span class="o">&gt;</span>
+
+<span class="o">&lt;</span><span class="n">p</span><span class="o">&gt;</span><span class="n">nf</span><span class="o">=</span><span class="nb">file</span><span class="p">(</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">test</span><span class="o">-</span><span class="n">data</span><span class="o">/</span><span class="n">pos</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;,</span><span class="o">&amp;</span><span class="n">lsquo</span><span class="p">;</span><span class="n">w</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;)</span>
+<span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">pos</span><span class="p">[</span><span class="n">count</span><span class="p">:]:</span>
+    <span class="n">nf</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">l</span><span class="p">)</span>
+<span class="n">nf</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></code></pre></div></p>
+]]></content>
+  </entry>
+  
+</feed>
